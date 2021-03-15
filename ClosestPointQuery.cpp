@@ -26,7 +26,6 @@ ClosestPointQuery::ClosestPointQuery( Mesh& mesh){
        const K::Point_3 point2(0.0,0.0,tri[2]); 
 
         triangle_points.push_back(Triangle(point0,point1,point2));
-        
     }
 }
 
