@@ -42,10 +42,10 @@ ClosestPointQuery( Mesh& mesh);
 /* empty destructor */
 ~ClosestPointQuery(){};
 /* Calculates the closest single face on a given face */ 
-void Closest_Single_face(Triangle colided_face, K::Point_3 point, K::Point_3 &closest_point, double &best_distance, int index);
+void Closest_Single_face(Triangle colided_face, K::Point_3 point, K::Point_3 &closest_point, double &best_distance, int index) const;
 
 /* calculates the closest distance to a given point within a search distance for all triangles */
-void Closest_face(K::Point_3 point, float maxDistance);
+K::Point_3 operator() (K::Point_3 point, float maxDistance) const;
 
 /* A mesh of Triangles */ 
 std::vector<Triangle> triangle_points;

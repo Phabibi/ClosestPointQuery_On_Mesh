@@ -1,6 +1,7 @@
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Surface_mesh.h>
 #include <CGAL/Polygon_mesh_processing/triangulate_faces.h>
+
 #include <fstream>
 typedef CGAL::Exact_predicates_inexact_constructions_kernel  Kernel;
 
@@ -10,7 +11,7 @@ typedef CGAL::Exact_predicates_inexact_constructions_kernel  Kernel;
 class Mesh
 {
     public:
-        // default constructor to make a mesh from an .OFF file
+        /* default constructor to make a mesh from an .OFF file */
         Mesh(const std::string path){
             std::ifstream input(path.data());
             if(!input || !(input >> mesh) || mesh.is_empty())
@@ -23,7 +24,10 @@ class Mesh
         }
         
         ~Mesh(){};
+
+        /* getter for the mesh */
         CGAL::Surface_mesh<Kernel::Point_3 > get_mesh(){return mesh;}
+
 
     private:
         //mesh object

@@ -30,7 +30,7 @@ ClosestPointQuery::ClosestPointQuery( Mesh& mesh){
     }
 }
 
-void ClosestPointQuery::Closest_Single_face(Triangle colided_face, K::Point_3 point, K::Point_3 &closest_point, double &best_distance, int index)
+void ClosestPointQuery::Closest_Single_face(Triangle colided_face, K::Point_3 point, K::Point_3 &closest_point, double &best_distance, int index) const
 {
     //project the point from the norm
     K::Point_3 first_vertex = colided_face[index]; 
@@ -92,14 +92,17 @@ void ClosestPointQuery::Closest_Single_face(Triangle colided_face, K::Point_3 po
     {
         // the point is on the surfacce
         std::cout << "the point is on the mesh" << std::endl;
-        best_distance =    plane_distance_square;
+        best_distance = plane_distance_square;
     }
 }
 
-void ClosestPointQuery::Closest_face(K::Point_3 point, float maxDistance)
+K::Point_3 ClosestPointQuery::operator() (K::Point_3 point, float maxDistance) const
 {
-     //construct the AABB tree
-    CGAL::AABB_tree<AABB_triangle_traits> tree(triangle_points.begin() , triangle_points.end() );
+
+    //make a copy of triangle_points since function is a const
+    std::vector<Triangle> triangle_points_c = triangle_points;
+    //construct the AABB tree
+    CGAL::AABB_tree<AABB_triangle_traits> tree(triangle_points_c.begin() , triangle_points_c.end() );
     K::Point_3 closest_p = tree.closest_point(point);
 
     //best square distance first iteration
@@ -139,5 +142,7 @@ void ClosestPointQuery::Closest_face(K::Point_3 point, float maxDistance)
     }
     std::cout << "the best distance is " << best_distance_sqrt << std::endl;
     std::cout << "the best point is " << closest_p << std::endl;
+
+    return closest_p;
 }
 
