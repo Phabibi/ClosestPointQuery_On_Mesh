@@ -3,7 +3,6 @@
 #include <CGAL/Polygon_mesh_processing/triangulate_faces.h>
 #include <fstream>
 typedef CGAL::Exact_predicates_inexact_constructions_kernel  Kernel;
-typedef Kernel::Point_3                    Point;
 
 
 /* abstract mesh class that encapsulates CGAL::Surface_mesh<point> */ 
@@ -24,10 +23,10 @@ class Mesh
         }
         
         ~Mesh(){};
-        CGAL::Surface_mesh<Point> get_mesh(){return mesh;}
+        CGAL::Surface_mesh<Kernel::Point_3 > get_mesh(){return mesh;}
 
     private:
         //mesh object
-        CGAL::Surface_mesh<Point> mesh;
+        CGAL::Surface_mesh<Kernel::Point_3> mesh;
 
 };

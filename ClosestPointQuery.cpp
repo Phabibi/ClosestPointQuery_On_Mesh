@@ -3,6 +3,33 @@
 //so we can use the VSA package
 namespace VSA = CGAL::Surface_mesh_approximation;
 
+ClosestPointQuery::ClosestPointQuery( Mesh& mesh){
+    
+    std::vector<Kernel::Point_3> anchors; // anchor points 
+    std::vector<std::array<std::size_t, 3> > triangles; // indexed triangles
+    
+    // Approximates the mesh into an array of triangles.
+    VSA::approximate_triangle_mesh(mesh.get_mesh(),
+                                    CGAL::parameters::verbose_level(VSA::MAIN_STEPS).
+                                    max_number_of_proxies(200).
+                                    anchors(std::back_inserter(anchors)). 
+                                    triangles(std::back_inserter(triangles))); 
+    
+    std::cout << "triangle array was created with the size : " << triangles.size() << std::endl;
+
+    //Construct the triangle vector
+    for(auto tri : triangles)
+    {
+        //triangle vertecies;
+       const K::Point_3 point0(tri[0],0.0, 0.0);
+       const K::Point_3 point1(0.0,tri[1],0.0);
+       const K::Point_3 point2(0.0,0.0,tri[2]); 
+
+        triangle_points.push_back(Triangle(point0,point1,point2));
+        
+    }
+}
+
 void ClosestPointQuery::Closest_Single_face(Triangle colided_face, K::Point_3 point, K::Point_3 &closest_point, double &best_distance, int index)
 {
     //project the point from the norm
@@ -58,9 +85,7 @@ void ClosestPointQuery::Closest_Single_face(Triangle colided_face, K::Point_3 po
                 best_distance = new_closest_dist;
                 closest_point = new_point;
             }
-
         }
-
     }
 
     if(outside_count == 0)
@@ -71,31 +96,9 @@ void ClosestPointQuery::Closest_Single_face(Triangle colided_face, K::Point_3 po
     }
 }
 
-ClosestPointQuery::ClosestPointQuery( K::Point_3 point,  Mesh& mesh,float maxDistance ){
-    //convert the mesh into an array of triangles.
-    
-    std::vector<Kernel::Point_3> anchors;
-    std::vector<std::array<std::size_t, 3> > triangles;
-    std::vector<Triangle> triangle_points;
-    // free function interface with named parameters
-    VSA::approximate_triangle_mesh(mesh.get_mesh(),
-                                    CGAL::parameters::verbose_level(VSA::MAIN_STEPS).
-                                    max_number_of_proxies(200).
-                                    anchors(std::back_inserter(anchors)). // anchor points
-                                    triangles(std::back_inserter(triangles))); // indexed triangles
-    std::cout << "triangle array was created with the size : " << triangles.size() << std::endl;
-    for(auto tri : triangles)
-    {
-        //triangle vertecies;
-       const K::Point_3 point0(tri[0],0.0, 0.0);
-       const K::Point_3 point1(0.0,tri[1],0.0);
-       const K::Point_3 point2(0.0,0.0,tri[2]); 
-
-        triangle_points.push_back(Triangle(point0,point1,point2));
-        
-    }
-
-    //construct the AABB tree
+void ClosestPointQuery::Closest_face(K::Point_3 point, float maxDistance)
+{
+     //construct the AABB tree
     CGAL::AABB_tree<AABB_triangle_traits> tree(triangle_points.begin() , triangle_points.end() );
     K::Point_3 closest_p = tree.closest_point(point);
 
@@ -109,18 +112,16 @@ ClosestPointQuery::ClosestPointQuery( K::Point_3 point,  Mesh& mesh,float maxDis
         std::cout<<"We are not within the search distance" << std::endl; 
     }
 
-    //construct the box diagonals within the search distance
+    //Construct a 3d box that will act as our collision box
     K::Vector_3 half_diag(best_distance_sqrt,best_distance_sqrt,best_distance_sqrt);
     auto lower_d = point - half_diag;
     auto upper_d = point + half_diag;
-
-    //construct a box that is point+bext_distance_square * point+best_distance_Squared wide.
-    //this will be our collision distance box
     std::vector<Triangle> candidate_trials;
     Box b(lower_d.x() , lower_d.y() ,lower_d.z(), upper_d.x() , upper_d.y(),upper_d.z());
     std::list<Tree::Primitive_id> primitives;
 
-    //all the colided meshes with our box
+
+    //all the colided meshes with our box withhin the search distance
     std::vector<Triangle> mesh_colided;
     tree.all_intersected_primitives(b , std::back_inserter(primitives));
     for(auto prims : primitives)
@@ -128,14 +129,15 @@ ClosestPointQuery::ClosestPointQuery( K::Point_3 point,  Mesh& mesh,float maxDis
         mesh_colided.push_back(*prims);
 
     }
+    std::cout << mesh_colided.size() << " faces colided with our box" << std::endl;
+
+    //caclulate the closest colided mesh face to our point 
     for(auto tris : mesh_colided)
     {
-            this->Closest_Single_face(tris, point, closest_p, best_distance_sqrt, 1);
+            Closest_Single_face(tris, point, closest_p, best_distance_sqrt, 1);
 
     }
     std::cout << "the best distance is " << best_distance_sqrt << std::endl;
     std::cout << "the best point is " << closest_p << std::endl;
-
-
 }
 
