@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <cstdint>
 #include <iomanip>
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>       /* time */
 
 /* CGAL */ 
 #include <CGAL/Simple_cartesian.h>
@@ -32,22 +34,22 @@ typedef CGAL::AABB_traits<K, Primitive> AABB_triangle_traits;
 typedef CGAL::AABB_tree<AABB_triangle_traits> Tree;
 
 
-
-
 class ClosestPointQuery
 {
 public:
-/* Constructs a triangluated mesh and calculates the closest distance to a given point within a search distance */ 
-ClosestPointQuery( Mesh& mesh);
-/* empty destructor */
-~ClosestPointQuery(){};
-/* Calculates the closest single face on a given face */ 
-void Closest_Single_face(Triangle colided_face, K::Point_3 point, K::Point_3 &closest_point, double &best_distance, int index) const;
+    /* Constructs a triangluated mesh and calculates the closest distance to a given point within a search distance */ 
+    ClosestPointQuery( Mesh& mesh);
 
-/* calculates the closest distance to a given point within a search distance for all triangles */
-K::Point_3 operator() (K::Point_3 point, float maxDistance) const;
+    /* empty destructor */
+    ~ClosestPointQuery() = default;
 
-/* A mesh of Triangles */ 
-std::vector<Triangle> triangle_points;
-// Point operator() (const Point& queryPoint, float maxDist) const;
+    /* Calculates the closest single face on a given face */ 
+    void Closest_Single_face(Triangle colided_face, K::Point_3 point, K::Point_3 &closest_point, double &best_distance, int index) const;
+
+    /* calculates the closest distance to a given point within a search distance for all triangles */
+    K::Point_3 operator() (K::Point_3 point, float maxDistance) const;
+
+private:
+    /* A mesh of Triangles */ 
+    std::vector<Triangle> m_triangle_points;
 };

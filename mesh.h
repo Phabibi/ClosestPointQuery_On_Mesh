@@ -10,7 +10,7 @@ typedef CGAL::Exact_predicates_inexact_constructions_kernel  Kernel;
 
 class Mesh
 {
-    public:
+public:
         /* default constructor to make a mesh from an .OFF file */
         Mesh(const std::string path){
             std::ifstream input(path.data());
@@ -20,16 +20,13 @@ class Mesh
                 return ;
             }
             std::cout << "mesh object successfully read with "<< mesh.number_of_faces() << " faces " << std::endl; 
-
         }
-        
-        ~Mesh(){};
 
+        ~Mesh() = default;
+    
         /* getter for the mesh */
         CGAL::Surface_mesh<Kernel::Point_3 > get_mesh(){return mesh;}
-
-
-    private:
+private:
         //mesh object
         CGAL::Surface_mesh<Kernel::Point_3> mesh;
 
