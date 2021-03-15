@@ -8,6 +8,7 @@ The [Sphere.off](https://pasteboard.co/JSNdWgY.png) is a triangulated mesh file.
 ## Dependencies 
 
 ClosestPointQuery uses the Geometry Algorithms Library CGAL inorder to do operations on the mesh data.
+
 ```CGAL```:  https://www.cgal.org/download 
 
 It is used to make and compile the project. 
